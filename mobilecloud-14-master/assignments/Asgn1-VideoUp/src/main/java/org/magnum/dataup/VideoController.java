@@ -10,16 +10,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.magnum.dataup.model.Video;
 import org.magnum.dataup.model.VideoStatus;
+import org.magnum.dataup.model.VideoStatus.VideoState;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -31,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class VideoController
 {
+	private static final int NOT_FOUND = 404;
 	private Map<Long,Video> videos = new HashMap<Long, Video>();
 	private static final AtomicLong currentId = new AtomicLong(0L);
 	
@@ -56,7 +63,7 @@ public class VideoController
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/video", method = RequestMethod.GET)
+	@RequestMapping(value = VideoSvcApi.VIDEO_SVC_PATH, method = RequestMethod.GET)
 	public @ResponseBody Collection<Video> getVideoList()
 	{
 		return videos.values();
@@ -69,10 +76,10 @@ public class VideoController
 	 * @param video
 	 * @return
 	 */
-	@RequestMapping(value = "/video", method = RequestMethod.POST)
+	@RequestMapping(value = VideoSvcApi.VIDEO_SVC_PATH, method = RequestMethod.POST)
 	public @ResponseBody Video addVideo(@RequestBody Video video)
 	{
-		checkAndSetId(video);
+		checkAndSetIdAndUrl(video);
 		videos.put(video.getId(), video);
 		return video;
 	}
@@ -83,12 +90,40 @@ public class VideoController
 	 * 
 	 * @param entity
 	 */
-	private void checkAndSetId(Video entity) 
+	private void checkAndSetIdAndUrl(Video entity) 
 	{
+		
 		if(entity.getId() == 0)
 		{
-			entity.setId(currentId.incrementAndGet());
+			long id = currentId.incrementAndGet();
+			
+			entity.setId(id);
+			
+			String dataUrl = getDataUrl(id);
+			entity.setDataUrl(dataUrl);
 		}
+		
+
+		
+	}
+	
+	
+    private String getDataUrl(long videoId){
+        String url = getUrlBaseForLocalServer() + "/video/" + videoId + "/data";
+        return url;
+    }
+    
+
+ 	private String getUrlBaseForLocalServer() 
+ 	{
+	   HttpServletRequest request = 
+	       ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+	
+	   String base = 
+	      "http://"+request.getServerName() 
+	      + ((request.getServerPort() != 80) ? ":"+request.getServerPort() : "");
+	   
+	   return base;
 	}
 	
 	
@@ -98,21 +133,48 @@ public class VideoController
 	 * @param videoData
 	 * @return
 	 */
-	@RequestMapping(value = "/video/{id}/data", method = RequestMethod.POST)
+	
+	@RequestMapping(value=VideoSvcApi.VIDEO_DATA_PATH, method=RequestMethod.POST)
 	public @ResponseBody VideoStatus setVideoData
 										(
 											@PathVariable("id") long id, 
-											@RequestBody MultipartFile videoData
-										)
+											@RequestParam("data") MultipartFile videoData,
+											HttpServletResponse response
+										
+										) throws IOException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		
+		Video v = videos.get(id);
+		if (null == v)
+		{
+			response.setStatus(NOT_FOUND);
+			return null;
+		}
+		
+		videoDataMgr.saveVideoData(v, videoData.getInputStream());
+		VideoStatus videoStatus = new VideoStatus(VideoState.READY);
+		
+		return videoStatus;
 	}
-
 	
 
-	public void getVideo(long id, HttpServletResponse response)
+	
+	@RequestMapping(value = VideoSvcApi.VIDEO_DATA_PATH, method = RequestMethod.GET)
+	public void getVideo(
+							@PathVariable("id") long id, 
+							HttpServletResponse response
+							
+						) throws IOException
 	{
+
+		Video v = videos.get(id);
+		if (null == v)
+		{
+			response.setStatus(NOT_FOUND);
+			return;
+		}
+		
+		videoDataMgr.copyVideoData(v, response.getOutputStream());
 		
 	}
 
