@@ -18,34 +18,39 @@
 
 package org.magnum.mobilecloud.video;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.magnum.mobilecloud.video.client.VideoSvcApi;
+import org.magnum.mobilecloud.video.repository.Video;
+import org.magnum.mobilecloud.video.repository.VideoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.core.mapping.ResourceMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class VideoController {
 	
-	/**
-	 * You will need to create one or more Spring controllers to fulfill the
-	 * requirements of the assignment. If you use this file, please rename it
-	 * to something other than "AnEmptyController"
-	 * 
-	 * 
-		 ________  ________  ________  ________          ___       ___  ___  ________  ___  __       
-		|\   ____\|\   __  \|\   __  \|\   ___ \        |\  \     |\  \|\  \|\   ____\|\  \|\  \     
-		\ \  \___|\ \  \|\  \ \  \|\  \ \  \_|\ \       \ \  \    \ \  \\\  \ \  \___|\ \  \/  /|_   
-		 \ \  \  __\ \  \\\  \ \  \\\  \ \  \ \\ \       \ \  \    \ \  \\\  \ \  \    \ \   ___  \  
-		  \ \  \|\  \ \  \\\  \ \  \\\  \ \  \_\\ \       \ \  \____\ \  \\\  \ \  \____\ \  \\ \  \ 
-		   \ \_______\ \_______\ \_______\ \_______\       \ \_______\ \_______\ \_______\ \__\\ \__\
-		    \|_______|\|_______|\|_______|\|_______|        \|_______|\|_______|\|_______|\|__| \|__|
-                                                                                                                                                                                                                                                                        
-	 * 
-	 */
+
+	@Autowired
+	private VideoRepository videos;
 	
-	@RequestMapping(value="/go",method=RequestMethod.GET)
-	public @ResponseBody String goodLuck(){
-		return "Good Luck!";
+	
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}/Like", method=RequestMethod.POST)
+	public void setLike(@RequestParam Long id, HttpServletResponse response) 
+	{
+		Video v = videos.findOne(id);
+		if ((null == v) || (v.getLikes() > 0))
+		{
+			response.setStatus(404);
+			return;
+		}
+		
+		
+
 	}
 	
 }
