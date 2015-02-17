@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.magnum.mobilecloud.video.auth.OAuth2SecurityConfiguration;
+import org.magnum.mobilecloud.video.json.ResourcesMapper;
 import org.magnum.mobilecloud.video.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -20,6 +21,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 //Tell Spring to automatically inject any dependencies that are marked in
 //our classes with @Autowired
@@ -118,5 +121,12 @@ public class Application extends RepositoryRestMvcConfiguration {
 			}
         };
     }
+    
+    
+    
+	@Override
+	public ObjectMapper halObjectMapper(){
+		return new ResourcesMapper();
+	}
 	
 }

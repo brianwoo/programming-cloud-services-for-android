@@ -1,9 +1,13 @@
 package org.magnum.mobilecloud.video.repository;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import com.google.common.base.Objects;
 
@@ -31,8 +35,13 @@ public class Video {
 	private String name;
 	private String url;
 	private long duration;
-	private long likes;
+	private long likes = 0L;
 	
+	@OneToMany(cascade = {CascadeType.ALL})
+	private Set<User> userLikesSet;
+	
+
+
 	public Video() {
 	}
 
@@ -83,6 +92,36 @@ public class Video {
 	public void setLikes(long likes) {
 		this.likes = likes;
 	}
+		
+	
+	public boolean isUserAleadySetLike(String user)
+	{
+		return userLikesSet.contains(new User(user));
+	}
+	
+	public Set<User> getUserLikesSet()
+	{
+		return userLikesSet;
+	}
+
+	public void setUserLikesSet(Set<User> userLikesSet)
+	{
+		this.userLikesSet = userLikesSet;
+	}
+	
+	
+	public void addUserToLikes(String user)
+	{
+		userLikesSet.add(new User(user));
+		likes++;
+	}
+	
+	public void removeUserFromLikes(String user)
+	{
+		userLikesSet.remove(new User(user));
+		likes--;
+	}
+	
 	
 	/**
 	 * Two Videos will generate the same hashcode if they have exactly the same
