@@ -127,12 +127,13 @@ public class Video {
 	 * Two Videos will generate the same hashcode if they have exactly the same
 	 * values for their name, url, and duration.
 	 * 
-	 */
+	 */	
 	@Override
 	public int hashCode() {
 		// Google Guava provides great utilities for hashing
 		return Objects.hashCode(name, url, duration);
 	}
+	
 
 	/**
 	 * Two Videos are considered equal if they have exactly the same values for
