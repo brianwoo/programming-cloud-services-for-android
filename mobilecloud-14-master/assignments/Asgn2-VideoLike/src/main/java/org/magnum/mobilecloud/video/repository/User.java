@@ -43,22 +43,32 @@ public class User
 	}
 
 	
+	
 	@Override
 	public int hashCode() {
 		// Google Guava provides great utilities for hashing
 		return Objects.hashCode(username);
 	}
 	
+	
+
+	
 	@Override
-	public boolean equals(Object anObject)
+	public boolean equals(Object obj) 
 	{
-		System.out.println("EQUALS: username=" + username);
-		System.out.println("EQUALS: anObject=" + anObject);
 		
-		return username.equals(anObject);
+		if (obj instanceof User) 
+		{
+			User other = (User) obj;
+			
+			// Google Guava provides great utilities for equals too!
+			return Objects.equal(username, other.getUsername());
+		} 
+		else 
+		{
+			return false;
+		}
 	}
-	
-	
 	
 	
 }
