@@ -1,0 +1,26 @@
+Wrapper Facade - a Wrapper, to provide a common interface and to hide the implementation details on specific platform/language.
+
+Reactor - one thread as the Reactor and receives dispatch from Acceptor and Connector. registers and removes handlers.
+
+Acceptor-Connector - Acceptor registers a handler, then "passively" waits for a connection, accepts connection then pass connection to a handler. 
+		     Connector registers a handler, then "actively" starts a connection then pass replies to a handler. 
+
+Activator - it's like Xinet.d, only spawn a thread to handle a connection when there is a connection.
+
+Component Configurator - using a scripting language to customize the behaviour of the application.
+
+Strategized Locking - need to lookup
+
+Half-Sync/Half-Async - Decouples synchronous/asynch service processing - e.g. using a message queue, android's asyncTask
+
+Montior Object - synchronizes method execution to ensure one method at a time runs within an obj.
+
+Active object - Using proxy to dispatch method call to (enqueue) an Activation List (Active Obj). The Future obj is returned to the caller.
+		If the method is ready to be executed on the servant, the ready obj on be executed on the servant and 
+		taken off the activation list. The result will be updated in the Future obj.
+
+Leader Followers - Decouples synchronous/async service processing - using a threadpool
+
+Proactor - Like the Reactor, but Async and create a "completion" port for the caller to get the results.
+
+ACT (Asynchronous Completion Token) - used in the Proactor pattern. This token is passed to the Proactor and also passed back after the Proactor is done
