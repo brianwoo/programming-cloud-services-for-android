@@ -1,8 +1,10 @@
 Wrapper Facade - a Wrapper, to provide a common interface and to hide the implementation details on specific platform/language.
 
-Reactor - one thread as the Reactor and receives dispatch from Acceptor and Connector. registers and removes handlers.
+Reactor - one thread as the Reactor acts as a dispatcher(demultiplexer).  It registers Acceptor and Connector as a handler. 
+	  It calls the acceptor to accept (wait for connection).
 
-Acceptor-Connector - Acceptor registers a handler, then "passively" waits for a connection, accepts connection then pass connection to a handler. 
+Acceptor-Connector - Acceptor regs a handler, then "passively" waits for a data connection (comes from the reactor), 
+		     accepts connection and pass this connection to a handler. 
 		     Connector registers a handler, then "actively" starts a connection then pass replies to a handler. 
 
 Activator - it's like Xinet.d, only spawn a thread to handle a connection when there is a connection.
