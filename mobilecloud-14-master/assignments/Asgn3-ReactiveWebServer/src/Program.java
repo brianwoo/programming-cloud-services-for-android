@@ -41,18 +41,20 @@ public class Program
 	 */
 	public Program()
 	{
-		ChannelFactory connector = new EchoServerConnector();
+	
+		ChannelFactory factory = new NioServerSocketChannelFactory(
+				Executors.newCachedThreadPool(),
+                Executors.newCachedThreadPool());
 		
         // The ServerBootstrap is acting as a reactor which is dispatching
         // the service requests to the EchoServerAcceptor.
 		
-		// This is just to create the 
-		// connector, acceptor and the ServerBootstrap which 
-		// ties the connector and acceptor together.  At this point,
-		// we are not connect the acceptor to the ServerBootstrap yet
-		// because we might have other handlers we can hookup.
+		// This is just to create the acceptor and the ServerBootstrap reactor.  
+		// At this point, we are not connect the acceptor to the 
+		// ServerBootstrap yet because we might have other handlers 
+		// we can hookup.
 		this.acceptor = new EchoServerAcceptor();
-        this.bootstrap = new ServerBootstrap(connector);
+        this.bootstrap = new ServerBootstrap(factory);
 	}
 	
 
@@ -91,7 +93,7 @@ public class Program
 		// this also hide the InetSocketAddress away from the user.
 		
 		// the reactor should now be able to forward connection 
-		// requests (from the connector) to the handler (through the acceptor).
+		// requests to the handler (using the acceptor).
         bootstrap.setPipelineFactory(acceptor);
 		bootstrap.bind(new InetSocketAddress(port));
 	}
@@ -148,23 +150,7 @@ public class Program
 		}
 		
 	}
-	
-
-	/******************************************************************
-	 * EchoServerConnector - this class acts as the Connector which 
-	 * handles incoming socket connections.
-	 * 
-	 * @author bwoo
-	 *
-	 ********************************************************************/
-	public class EchoServerConnector extends NioServerSocketChannelFactory
-	{
-		public EchoServerConnector() {
-			super(Executors.newCachedThreadPool(),
-                  Executors.newCachedThreadPool());
-		}
-	}
-	
+		
 	
 	
 	/*************************************************
