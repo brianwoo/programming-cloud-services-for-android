@@ -42,6 +42,8 @@ public class Program
 	public Program()
 	{
 	
+		// Half-Sync/Half Async pattern: where the boss thread will accept the incoming
+		// connection and forward the connection to the worker thread pool.
 		ChannelFactory factory = new NioServerSocketChannelFactory(
 				Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool());
